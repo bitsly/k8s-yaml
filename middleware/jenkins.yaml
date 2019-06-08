@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: jenkins
+        image: jenkins:2.60.3
+        ports:
+        - containerPort: 8080
+        - containerPort: 50000
+        volumeMounts:
+        - name: jenkins-data-volume
+          mountPath: /var/jenkins_home
+      volumes:
+      - name: jenkins-data-volume
+        hostPath:
+          path: /var/k8s/jenkins/data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 8080port
+    port: 8080
+    targetPort: 8080
+  - name: 50000port
+    port: 50000
+    targetPort: 50000
+  selector:
+    app: jenkins

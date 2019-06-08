@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-configmap
+  namespace: middleware
+data:
+  redis.conf: |
+    maxclients 20000
+    timeout 600
+    tcp-keepalive 60
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: redis
+        image: redis:5.0.3-alpine
+        args: [
+          "/etc/redis.conf"
+        ]
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-config-volume
+          mountPath: /etc/redis.conf
+          subPath: redis.conf
+      - name: redis-exporter
+        image: oliver006/redis_exporter:v0.33.0
+        ports:
+        - containerPort: 9121
+      volumes:
+      - name: redis-config-volume
+        configMap:
+          name: redis-configmap
+          items:
+          - key: redis.conf
+            path: redis.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: middleware
+spec:
+  selector:
+    app: redis
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 6379port
+    port: 6379
+    targetPort: 6379
+  - name: 9121port
+    port: 9121
+    targetPort: 9121
+

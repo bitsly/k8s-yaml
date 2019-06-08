@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap
+  template:
+    metadata:
+      labels:
+        app: ldap
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: ldap
+        image: osixia/openldap:1.2.4
+        ports:
+        - containerPort: 389
+        - containerPort: 636
+        env:
+        - name: LDAP_ORGANISATION
+          value: "Bitsly Inc"
+        - name: LDAP_DOMAIN
+          value: "bitsly.org"
+        - name: LDAP_ADMIN_PASSWORD
+          value: admin
+        - name: LDAP_TLS
+          value: "false"
+        - name: TLS_REQCERT
+          value: "never"
+        volumeMounts:
+        - name: ldap-data-volume
+          mountPath: /var/lib/ldap
+        - name: ldap-etc-volume
+          mountPath: /etc/ldap/slapd.d
+      - name: phpldapadmin
+        image: osixia/phpldapadmin:0.8.0
+        ports:
+        - containerPort: 443
+        - containerPort: 80
+        env:
+        - name: PHPLDAPADMIN_LDAP_HOSTS
+          value: "#PYTHON2BASH:[{'192.168.11.111': [{'server': [{'tls': 'false'}, {'port':'389'}]}, {'login': [{'bind_id': 'cn=admin,dc=bitsly,dc=org'}, {'bind_pass':'admin'}]}]}]"
+        - name: PHPLDAPADMIN_SERVER_ADMIN
+          value: "admin@bitsly.org"
+        - name: PHPLDAPADMIN_SERVER_PATH
+          value: "/"
+        - name: PHPLDAPADMIN_HTTPS
+          value: "false"
+        - name: PHPLDAPADMIN_LDAP_CLIENT_TLS
+          value: "false"
+        - name: PHPLDAPADMIN_LDAP_CLIENT_TLS_REQCERT
+          value: "never"
+        - name: HOSTNAME
+          value: "192.168.11.111"
+      volumes:
+      - name: ldap-data-volume
+        hostPath:
+          path: /var/k8s/ldap/data
+      - name: ldap-etc-volume
+        hostPath:
+          path: /var/k8s/ldap/etc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap
+  namespace: middleware
+spec:
+  selector:
+    app: ldap
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 389port
+    port: 389
+    targetPort: 389
+  - name: 636port
+    port: 636
+    targetPort: 636
+  - name: 7070port
+    port: 7070
+    targetPort: 80
+  - name: 7073port
+    port: 7073
+    targetPort: 443

@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+  namespace: middleware
+data:
+  nginx.conf: |
+    user  root root;
+    worker_processes  auto;
+    events {
+      use epoll;
+      worker_connections  1024;
+    }
+    http {
+      include       mime.types;
+      default_type  application/octet-stream;
+      autoindex  on;
+      gzip  on;
+      sendfile on;
+      access_log /tmp/access.log;
+      error_log  /tmp/error.log;
+      include /etc/nginx/conf.d/*.conf;
+    }
+
+  default.conf: |
+    server {
+      listen       80;
+      server_name  service.bitsly.org;
+      merge_slashes off;
+      location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+        autoindex  on;
+      }
+    }
+
+  index.html: |
+    <html>
+    <head>
+      <title>service</title>
+    </head>
+    <body>
+      <a target="_blank" href="http://service.bitsly.org:7070">ldap manager </a> admin  admin<br/>
+      <a target="_blank" href="http://service.bitsly.org:5601">efk</a><br/>
+      <a target="_blank" href="http://service.bitsly.org:15672">rabbitmq </a>admin admin<br/>
+      <a target="_blank" href="http://service.bitsly.org:8080">jenkins </a><br/>
+      <a target="_blank" href="http://service.bitsly.org:8081">nexus </a><br/>
+      <a target="_blank" href="http://service.bitsly.org:8848/nacos">nacos </a>nacos nacos<br/>
+      <a target="_blank" href="http://service.bitsly.org:3000">grafana </a>admin admin<br/>
+      <a target="_blank" href="http://service.bitsly.org:9000">sonarqube </a>admin admin<br/>
+    </body>
+    </html>
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: nginx
+        image: nginx:1.14-alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-storage
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf 
+        - name: nginx-conf-d-volume
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: html-storage
+        configMap:
+          name: nginx-configmap
+          items:
+          - key: index.html
+            path: index.html
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-configmap
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      - name: nginx-conf-d-volume
+        configMap:
+          name: nginx-configmap
+          items:
+          - key: default.conf
+            path: default.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 80port
+    port: 80
+    targetPort: 80
+  selector:
+    app: nginx

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: postgresql
+        image: postgres:11.3-alpine
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: demo
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_USER
+          value: "mysql"
+        - name: MYSQL_PASSWORD
+          value: "mysql"
+        volumeMounts:
+        - name: mysql-data-volume
+          mountPath: /var/lib/mysql
+        - name: mysql-config-volume
+          mountPath: /etc/mysql/my.cnf
+          subPath: my.cnf
+        - name: mysql-init-sql-volume
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+      volumes:
+      - name: mysql-data-volume
+        hostPath:
+          path: /var/k8s/mysql/data
+      - name: mysql-config-volume
+        configMap:
+          name: mysql-configmap
+          items:
+          - key: my.cnf
+            path: my.cnf
+      - name: mysql-init-sql-volume
+        configMap:
+          name: mysql-configmap
+          items:
+          - key: init.sql
+            path: init.sql
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 11.3-alpine
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 3306port
+    port: 3306
+    targetPort: 3306
+  - name: exporter
+    port: 9104
+    targetPort: 9104
+  selector:
+    app: 11.3-alpine

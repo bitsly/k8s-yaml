@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexus
+  template:
+    metadata:
+      labels:
+        app: nexus
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: nexus
+        image: sonatype/nexus3:3.14.0
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - name: nexus-data-volume
+          mountPath: /nexus-data
+      volumes:
+      - name: nexus-data-volume
+        hostPath:
+          path: /var/k8s/nexus/data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus
+  namespace: middleware
+spec:
+  selector:
+    app: nexus
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 8081port
+    port: 8081
+    targetPort: 8081
+

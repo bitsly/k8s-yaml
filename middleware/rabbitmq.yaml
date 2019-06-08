@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.7-management-alpine
+        ports:
+        - containerPort: 15672
+        - containerPort: 5672
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "admin"
+        - name: RABBITMQ_DEFAULT_PASS
+          value: "admin"
+        - name: RABBITMQ_DEFAULT_VHOST
+          value: ""
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 15672port
+    port: 15672
+    targetPort: 15672
+  - name: 5672port
+    port: 5672
+    targetPort: 5672
+  selector:
+    app: rabbitmq
+

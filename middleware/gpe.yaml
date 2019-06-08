@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gpe-configmap
+  namespace: middleware
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+      scrape_timeout: 3s
+    scrape_configs:
+      - job_name: 'host'
+        static_configs:
+          - targets: ['localhost:9100']
+      - job_name: 'redis'
+        static_configs:
+          - targets: ['redis:9121']
+      - job_name: 'mysql'
+        static_configs:
+          - targets: ['mysql:9104']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpe
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpe
+  template:
+    metadata:
+      labels:
+        app: gpe
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: grafana
+        image: grafana/grafana:6.1.4
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: admin
+        volumeMounts:
+        - name: grafana-data-volume
+          mountPath: /var/lib/grafana
+      - name: prometheus
+        image: prom/prometheus:v2.9.1
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/prometheus.yml
+          subPath: prometheus.yml
+        - name: prometheus-storage-volume
+          mountPath: /prometheus
+      - name: exporter
+        image: prom/node-exporter:v0.17.0
+        ports:
+        - containerPort: 9100
+      volumes:
+      - name: grafana-data-volume
+        hostPath:
+          path: /var/k8s/grafana/data
+      - name: prometheus-config-volume
+        configMap:
+          name: gpe-configmap
+          items:
+          - key: prometheus.yml
+            path: prometheus.yml
+      - name: prometheus-storage-volume
+        hostPath:
+          path: /var/k8s/prometheus/data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpe
+  namespace: middleware
+spec:
+  selector:
+    app: gpe
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: grafanaport
+    port: 3000
+    targetPort: 3000
+  - name: prometheusport
+    port: 9090
+    targetPort: 9090
+  - name: exporterport
+    port: 9100
+    targetPort: 9100

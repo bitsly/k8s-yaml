@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: mongo
+        image: mongo:3.6.9-stretch
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "root"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "root"
+        volumeMounts:
+        - name: mongo-data-volume
+          mountPath: /data/db
+      volumes:
+      - name: mongo-data-volume
+        hostPath:
+          path: /var/k8s/mongo/data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 27017name
+    port: 27017
+    targetPort: 27017
+  selector:
+    app: mongo

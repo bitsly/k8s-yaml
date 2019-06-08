@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+  namespace: middleware
+data:
+  my.cnf: |
+    [mysqld]
+    default_time_zone = +8:00
+    character_set_server = utf8mb4
+    collation_server = utf8mb4_unicode_ci
+    default_storage_engine = InnoDB
+    max_connections = 20000
+    wait_timeout = 70
+    interactive_timeout = 70
+    max_allowed_packet = 512K
+    innodb_buffer_pool_size = 512M
+    performance_schema = OFF
+    sql_mode = "ONLY_FULL_GROUP_BY,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+  init.sql: |
+    -- mysql
+    CREATE DATABASE IF NOT EXISTS demo;
+    CREATE USER IF NOT EXISTS 'admin'@'%' IDENTIFIED BY 'admin';
+    GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;
+    -- exporter
+    CREATE USER IF NOT EXISTS 'exporter'@'localhost' IDENTIFIED BY 'exporter';
+    GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'exporter'@'localhost';
+    GRANT SELECT ON performance_schema.* TO 'exporter'@'localhost';
+    -- sonar
+    CREATE DATABASE IF NOT EXISTS sonar;
+    CREATE USER IF NOT EXISTS 'sonar'@'%' IDENTIFIED BY 'sonar';
+    GRANT ALL PRIVILEGES ON sonar.* TO 'sonar'@'%';
+    -- bud
+    CREATE DATABASE IF NOT EXISTS bud;
+    CREATE IF NOT EXISTS USER 'bud'@'%' IDENTIFIED BY 'bud';
+    GRANT ALL PRIVILEGES ON bud.* TO 'bud'@'%';
+    -- flush
+    FLUSH PRIVILEGES;
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: demo
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_USER
+          value: "mysql"
+        - name: MYSQL_PASSWORD
+          value: "mysql"
+        volumeMounts:
+        - name: mysql-data-volume
+          mountPath: /var/lib/mysql
+        - name: mysql-config-volume
+          mountPath: /etc/mysql/my.cnf
+          subPath: my.cnf
+        - name: mysql-init-sql-volume
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+      - name: exporter
+        image: prom/mysqld-exporter:v0.11.0
+        ports:
+        - containerPort: 9104
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "exporter:exporter@(localhost:3306)/"
+      volumes:
+      - name: mysql-data-volume
+        hostPath:
+          path: /var/k8s/mysql/data
+      - name: mysql-config-volume
+        configMap:
+          name: mysql-configmap
+          items:
+          - key: my.cnf
+            path: my.cnf
+      - name: mysql-init-sql-volume
+        configMap:
+          name: mysql-configmap
+          items:
+          - key: init.sql
+            path: init.sql
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 3306port
+    port: 3306
+    targetPort: 3306
+  - name: exporter
+    port: 9104
+    targetPort: 9104
+  selector:
+    app: mysql

@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gerrit
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gerrit
+  template:
+    metadata:
+      labels:
+        app: gerrit
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: gerrit
+        image: openfrontier/gerrit:2.16.8
+        ports:
+        - containerPort: 29418
+        - containerPort: 8080
+        env:
+        - name: AUTH_TYPE
+          value: LDAP
+        - name: LDAP_SERVER
+          value: ldap://192.168.11.111
+        - name: LDAP_ACCOUNTBASE
+          value: "cn=admin,dc=bitsly,dc=org"
+        - name: LDAP_GROUPBASE
+          value: "cn=admin,dc=bitsly,dc=org"
+        - name: LDAP_USERNAME
+          value: "cn=admin,dc=bitsly,dc=org"
+        - name: LDAP_PASSWORD
+          value: admin
+        - name: WEBURL
+          value: "http://service.bitsly.org:8070"
+        - name: DATABASE_TYPE
+          value: mysql
+        - name: DATABASE_HOSTNAME
+          value: "192.168.11.111"
+        - name: DATABASE_PORT
+          value: "3306"
+        - name: DATABASE_DATABASE
+          value: gerrit
+        - name: DATABASE_USERNAME
+          value: gerrit
+        - name: DATABASE_PASSWORD
+          value: gerrit 
+        volumeMounts:
+        - name: gerrit-index-volume
+          mountPath: /var/gerrit/review_site/index
+        - name: gerrit-cache-volume
+          mountPath: /var/gerrit/review_site/cache
+      volumes:
+      - name: gerrit-index-volume
+        hostPath:
+          path: /var/k8s/gerrit/index
+      - name: gerrit-cache-volume
+        hostPath:
+          path: /var/k8s/gerrit/cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gerrit
+  namespace: middleware
+spec:
+  selector:
+    app: gerrit
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 29418port
+    port: 29418
+    targetPort: 29418
+  - name: 8080port
+    port: 8070
+    targetPort: 8080

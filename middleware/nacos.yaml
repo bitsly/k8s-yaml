@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nacos-configmap
+  namespace: middleware
+data:
+  custom.properties: |
+    #spring.security.enabled=false
+    #management.security=false
+    #security.basic.enabled=false
+    #nacos.security.ignore.urls=/**
+    #management.metrics.export.elastic.host=http://localhost:9200
+    # metrics for prometheus
+    management.endpoints.web.exposure.include=*
+    # metrics for elastic search
+    #management.metrics.export.elastic.enabled=false
+    #management.metrics.export.elastic.host=http://localhost:9200
+    # metrics for influx
+    #management.metrics.export.influx.enabled=false
+    #management.metrics.export.influx.db=springboot
+    #management.metrics.export.influx.uri=http://localhost:8086
+    #management.metrics.export.influx.auto-create-db=true
+    #management.metrics.export.influx.consistency=one
+    #management.metrics.export.influx.compressed=true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nacos
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nacos
+  template:
+    metadata:
+      labels:
+        app: nacos
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: nacos
+        image: nacos/nacos-server:1.0.0
+        ports:
+        - containerPort: 8848
+        env:
+        - name: PREFER_HOST_MODE
+          value: ip
+        - name: MODE
+          value: standalone
+        volumeMounts:
+        - name: nacos-data-volume
+          mountPath: /home/nacos/data
+        - name: nacos-plugins-volume
+          mountPath: /home/nacos/plugins
+        - name: nacos-config-volume
+          mountPath: /home/nacos/init.d/custom.properties
+          subPath: custom.properties
+      volumes:
+      - name: nacos-data-volume
+        hostPath:
+          path: /var/k8s/nacos/data
+      - name: nacos-plugins-volume
+        hostPath:
+          path: /var/k8s/nacos/plugins
+      - name: nacos-config-volume
+        configMap:
+          name: nacos-configmap
+          items:
+          - key: custom.properties
+            path: custom.properties
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 8848port
+    port: 8848
+    targetPort: 8848
+  selector:
+    app: nacos

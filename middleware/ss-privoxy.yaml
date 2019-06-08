@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ss-privoxy
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ss-privoxy
+  template:
+    metadata:
+      labels:
+        app: ss-privoxy
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: ss-privoxy
+        image: bluebu/shadowsocks-privoxy:latest
+        ports:
+        - containerPort: 8118
+        env:
+        - name: SERVER_ADDR
+          value: 
+        - name: SERVER_PORT
+          value: "9999"
+        - name: METHOD
+          value: aes-256-cfb
+        - name: PASSWORD
+          value: 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ss-privoxy
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 8118port
+    port: 8118
+    targetPort: 8118
+  selector:
+    app: ss-privoxy

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consul
+  template:
+    metadata:
+      labels:
+        app: consul
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: consul
+        image: consul:1.4.3
+        ports:
+        - containerPort: 8600
+          protocol: UDP
+        - containerPort: 8600
+        - containerPort: 8500
+        - containerPort: 8502
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consul
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 8600portudp
+    port: 8600
+    protocol: UDP
+    targetPort: 8600
+  - name: 8600port
+    port: 8600
+    targetPort: 8600
+  - name: 8500port
+    port: 8500
+    targetPort: 8500
+  - name: 8502port
+    port: 8502
+    targetPort: 8502
+  selector:
+    app: consul

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonar
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonar
+  template:
+    metadata:
+      labels:
+        app: sonar
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: sonar
+        image: sonarqube:lts-alpine
+        ports:
+        - containerPort: 9000
+        env:
+        - name: SONARQUBE_JDBC_URL
+          value: jdbc:mysql://192.168.11.111:3306/sonar?useUnicode=true&characterEncoding=utf8
+        - name: SONARQUBE_JDBC_USERNAME
+          value: sonar
+        - name: SONARQUBE_JDBC_PASSWORD
+          value: sonar
+        - name: SONARQUBE_WEB_JVM_OPTS
+          value: "-Dhttps.proxyHost=192.168.11.111 -Dhttps.proxyPort=8118"
+        volumeMounts:
+        - name: sonar-data-volume
+          mountPath: /opt/sonarqube/data
+        volumeMounts:
+        - name: sonar-extensions-volume
+          mountPath: /opt/sonarqube/extensions
+      volumes:
+      - name: sonar-data-volume
+        hostPath:
+          path: /var/k8s/sonar/data
+      - name: sonar-extensions-volume
+        hostPath:
+          path: /var/k8s/sonar/extensions
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonar
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 9000port
+    port: 9000
+    targetPort: 9000
+  selector:
+    app: sonar
