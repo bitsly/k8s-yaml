@@ -26,10 +26,6 @@ data:
     CREATE USER IF NOT EXISTS 'exporter'@'localhost' IDENTIFIED BY 'exporter';
     GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'exporter'@'localhost';
     GRANT SELECT ON performance_schema.* TO 'exporter'@'localhost';
-    -- sonar
-    CREATE DATABASE IF NOT EXISTS sonar;
-    CREATE USER IF NOT EXISTS 'sonar'@'%' IDENTIFIED BY 'sonar';
-    GRANT ALL PRIVILEGES ON sonar.* TO 'sonar'@'%';
     -- bud
     CREATE DATABASE IF NOT EXISTS bud;
     CREATE IF NOT EXISTS USER 'bud'@'%' IDENTIFIED BY 'bud';
@@ -70,9 +66,9 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           value: "root"
         - name: MYSQL_USER
-          value: "mysql"
+          value: "admin"
         - name: MYSQL_PASSWORD
-          value: "mysql"
+          value: "admin"
         volumeMounts:
         - name: mysql-data-volume
           mountPath: /var/lib/mysql

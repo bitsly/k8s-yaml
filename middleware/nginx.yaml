@@ -40,7 +40,7 @@ data:
       <title>service</title>
     </head>
     <body>
-      <a target="_blank" href="http://service.bitsly.org:7070">ldap manager </a> admin  admin<br/>
+      <a target="_blank" href="http://service.bitsly.org:7070">phpldapadmin </a> admin  admin<br/>
       <a target="_blank" href="http://service.bitsly.org:5601">efk</a><br/>
       <a target="_blank" href="http://service.bitsly.org:15672">rabbitmq </a>admin admin<br/>
       <a target="_blank" href="http://service.bitsly.org:8080">jenkins </a><br/>
@@ -48,6 +48,7 @@ data:
       <a target="_blank" href="http://service.bitsly.org:8848/nacos">nacos </a>nacos nacos<br/>
       <a target="_blank" href="http://service.bitsly.org:3000">grafana </a>admin admin<br/>
       <a target="_blank" href="http://service.bitsly.org:9000">sonarqube </a>admin admin<br/>
+      <a target="_blank" href="http://service.bitsly.org:8070">gerrit </a>admin admin<br/>
     </body>
     </html>
 
@@ -115,8 +116,8 @@ spec:
   - 192.168.192.111
   - 192.168.11.111
   ports:
-  - name: 80port
-    port: 80
+  - name: 88port
+    port: 88
     targetPort: 80
   selector:
     app: nginx

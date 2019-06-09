@@ -24,7 +24,7 @@ spec:
         - containerPort: 9000
         env:
         - name: SONARQUBE_JDBC_URL
-          value: jdbc:mysql://192.168.11.111:3306/sonar?useUnicode=true&characterEncoding=utf8
+          value: jdbc:postgresql://192.168.11.111:5432/sonar
         - name: SONARQUBE_JDBC_USERNAME
           value: sonar
         - name: SONARQUBE_JDBC_PASSWORD
