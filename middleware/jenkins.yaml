@@ -19,7 +19,7 @@ spec:
         fsGroup: 0
       containers:
       - name: jenkins
-        image: jenkins:2.60.3-alpine
+        image: jenkins:2.60.3
         ports:
         - containerPort: 8080
         - containerPort: 50000

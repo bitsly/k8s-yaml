@@ -40,6 +40,7 @@ data:
       <title>service</title>
     </head>
     <body>
+      <a target="_blank" href="https://service.bitsly.org:2443">rancher </a><br/>
       <a target="_blank" href="http://service.bitsly.org:7070">phpldapadmin </a> admin  admin<br/>
       <a target="_blank" href="http://service.bitsly.org:5601">efk</a><br/>
       <a target="_blank" href="http://service.bitsly.org:15672">rabbitmq </a>admin admin<br/>
