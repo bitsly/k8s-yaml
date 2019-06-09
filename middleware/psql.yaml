@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: psql-configmap
+  namespace: middleware
+data:
+  init.sql: |
+    -- sonar
+    create user sonar with password 'sonar';
+    create database sonar owner sonar;
+    grant all on database sonar to sonar;
+    -- gerrit
+    create user gerrit with password 'gerrit';
+    create database gerrit owner gerrit;
+    grant all on database gerrit to gerrit;
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: psql
+  template:
+    metadata:
+      labels:
+        app: psql
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: psql
+        image: postgres:11.3-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          value: admin
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_DB
+          value: demo
+        volumeMounts:
+        - name: psql-init-sql-volume
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+        - name: psql-data-volume
+          mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: psql-init-sql-volume
+          configMap:
+            name: psql-configmap
+            items:
+            - key: init.sql
+              path: init.sql
+        - name: psql-data-volume
+          hostPath:
+            path: /var/k8s/psql/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: psql
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 5432port
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: psql
