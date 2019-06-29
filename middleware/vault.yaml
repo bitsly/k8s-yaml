@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: vault
+        image: vault:1.1.3
+        securityContext:
+          capabilities:
+            add:
+            - IPC_LOCK
+        ports:
+        - containerPort: 8300
+        env:
+        - name: VAULT_DEV_ROOT_TOKEN_ID
+          value: "admin"
+        - name: VAULT_DEV_LISTEN_ADDRESS
+          value: "0.0.0.0:8300"
+        volumeMounts:
+        - name: vault-data-volume
+          mountPath: /vault/file
+      volumes:
+      - name: vault-data-volume
+        hostPath:
+          path: /var/k8s/vault/data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: middleware
+spec:
+  externalIPs:
+  - 192.168.192.111
+  - 192.168.11.111
+  ports:
+  - name: 8300port
+    port: 8300
+    targetPort: 8300
+  selector:
+    app: vault
