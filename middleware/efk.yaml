@@ -32,7 +32,7 @@ spec:
       volumes:
       - name: elasticsearch-volume
         hostPath:
-          path: /var/k8s/elasticsearch/data
+          path: /mnt/data/elasticsearch/data
 
 ---
 apiVersion: v1
@@ -91,8 +91,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 5601port
     port: 5601
@@ -249,8 +248,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 24224port
     port: 24224

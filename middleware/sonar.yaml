@@ -24,13 +24,13 @@ spec:
         - containerPort: 9000
         env:
         - name: SONARQUBE_JDBC_URL
-          value: jdbc:postgresql://192.168.11.111:5432/sonar
+          value: jdbc:postgresql://192.168.11.3:5432/sonar
         - name: SONARQUBE_JDBC_USERNAME
           value: sonar
         - name: SONARQUBE_JDBC_PASSWORD
           value: sonar
         - name: SONARQUBE_WEB_JVM_OPTS
-          value: "-Dhttps.proxyHost=192.168.11.111 -Dhttps.proxyPort=8118"
+          value: "-Dhttps.proxyHost=192.168.11.3 -Dhttps.proxyPort=8118"
         volumeMounts:
         - name: sonar-data-volume
           mountPath: /opt/sonarqube/data
@@ -40,10 +40,10 @@ spec:
       volumes:
       - name: sonar-data-volume
         hostPath:
-          path: /var/k8s/sonar/data
+          path: /mnt/data/sonar/data
       - name: sonar-extensions-volume
         hostPath:
-          path: /var/k8s/sonar/extensions
+          path: /mnt/data/sonar/extensions
 
 ---
 apiVersion: v1
@@ -53,8 +53,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 9000port
     port: 9000

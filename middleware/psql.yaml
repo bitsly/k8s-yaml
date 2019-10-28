@@ -61,7 +61,7 @@ spec:
               path: init.sql
         - name: psql-data-volume
           hostPath:
-            path: /var/k8s/psql/data
+            path: /mnt/data/psql/data
 ---
 apiVersion: v1
 kind: Service
@@ -70,8 +70,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 5432port
     port: 5432

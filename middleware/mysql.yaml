@@ -88,7 +88,7 @@ spec:
       volumes:
       - name: mysql-data-volume
         hostPath:
-          path: /var/k8s/mysql/data
+          path: /mnt/data/mysql/data
       - name: mysql-config-volume
         configMap:
           name: mysql-configmap
@@ -110,8 +110,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 3306port
     port: 3306

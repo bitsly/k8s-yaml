@@ -46,7 +46,7 @@ spec:
         - containerPort: 80
         env:
         - name: PHPLDAPADMIN_LDAP_HOSTS
-          value: "#PYTHON2BASH:[{'192.168.11.111': [{'server': [{'tls': 'false'}, {'port':'389'}]}, {'login': [{'bind_id': 'cn=admin,dc=bitsly,dc=org'}, {'bind_pass':'admin'}]}]}]"
+          value: "#PYTHON2BASH:[{'192.168.11.3': [{'server': [{'tls': 'false'}, {'port':'389'}]}, {'login': [{'bind_id': 'cn=admin,dc=bitsly,dc=org'}, {'bind_pass':'admin'}]}]}]"
         - name: PHPLDAPADMIN_SERVER_ADMIN
           value: "admin@bitsly.org"
         - name: PHPLDAPADMIN_SERVER_PATH
@@ -58,14 +58,14 @@ spec:
         - name: PHPLDAPADMIN_LDAP_CLIENT_TLS_REQCERT
           value: "never"
         - name: HOSTNAME
-          value: "192.168.11.111"
+          value: "192.168.11.3"
       volumes:
       - name: ldap-data-volume
         hostPath:
-          path: /var/k8s/ldap/data
+          path: /mnt/data/ldap/data
       - name: ldap-etc-volume
         hostPath:
-          path: /var/k8s/ldap/etc
+          path: /mnt/data/ldap/etc
 
 ---
 apiVersion: v1
@@ -77,8 +77,7 @@ spec:
   selector:
     app: ldap
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 389port
     port: 389

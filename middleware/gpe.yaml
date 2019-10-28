@@ -66,7 +66,7 @@ spec:
       volumes:
       - name: grafana-data-volume
         hostPath:
-          path: /var/k8s/grafana/data
+          path: /mnt/data/grafana/data
       - name: prometheus-config-volume
         configMap:
           name: gpe-configmap
@@ -75,7 +75,7 @@ spec:
             path: prometheus.yml
       - name: prometheus-storage-volume
         hostPath:
-          path: /var/k8s/prometheus/data
+          path: /mnt/data/prometheus/data
 
 ---
 apiVersion: v1
@@ -87,8 +87,7 @@ spec:
   selector:
     app: gpe
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: grafanaport
     port: 3000

@@ -53,8 +53,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 3128port
     port: 3128

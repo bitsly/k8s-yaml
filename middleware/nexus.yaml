@@ -28,7 +28,7 @@ spec:
       volumes:
       - name: nexus-data-volume
         hostPath:
-          path: /var/k8s/nexus/data
+          path: /mnt/data/nexus/data
 
 ---
 apiVersion: v1
@@ -40,8 +40,7 @@ spec:
   selector:
     app: nexus
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 8081port
     port: 8081

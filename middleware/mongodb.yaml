@@ -33,7 +33,7 @@ spec:
       volumes:
       - name: mongo-data-volume
         hostPath:
-          path: /var/k8s/mongo/data
+          path: /mnt/data/mongo/data
 
 ---
 apiVersion: v1
@@ -43,8 +43,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 27017name
     port: 27017

@@ -29,7 +29,7 @@ spec:
       volumes:
       - name: jenkins-data-volume
         hostPath:
-          path: /var/k8s/jenkins/data
+          path: /mnt/data/jenkins/data
 
 ---
 apiVersion: v1
@@ -39,8 +39,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 8080port
     port: 8080

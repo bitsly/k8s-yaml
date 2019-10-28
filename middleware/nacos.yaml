@@ -64,10 +64,10 @@ spec:
       volumes:
       - name: nacos-data-volume
         hostPath:
-          path: /var/k8s/nacos/data
+          path: /mnt/data/nacos/data
       - name: nacos-plugins-volume
         hostPath:
-          path: /var/k8s/nacos/plugins
+          path: /mnt/data/nacos/plugins
       - name: nacos-config-volume
         configMap:
           name: nacos-configmap
@@ -83,8 +83,7 @@ metadata:
   namespace: middleware
 spec:
   externalIPs:
-  - 192.168.192.111
-  - 192.168.11.111
+  - 192.168.11.3
   ports:
   - name: 8848port
     port: 8848
