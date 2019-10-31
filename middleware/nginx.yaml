@@ -40,17 +40,17 @@ data:
       <title>service</title>
     </head>
     <body>
-      <a target="_blank" href="https://service.bitsly.org:2443">rancher </a> admin  admin<br/>
-      <a target="_blank" href="http://service.bitsly.org:7070">phpldapadmin </a> admin  admin<br/>
-      <a target="_blank" href="http://service.bitsly.org:5601">efk</a><br/>
-      <a target="_blank" href="http://service.bitsly.org:15672">rabbitmq </a>admin admin<br/>
-      <a target="_blank" href="http://service.bitsly.org:8080">jenkins </a><br/>
-      <a target="_blank" href="http://service.bitsly.org:8081">nexus </a><br/>
-      <a target="_blank" href="http://service.bitsly.org:8848/nacos">nacos </a>nacos nacos<br/>
-      <a target="_blank" href="http://service.bitsly.org:3000">grafana </a>admin admin<br/>
-      <a target="_blank" href="http://service.bitsly.org:9000">sonarqube </a>admin admin<br/>
-      <a target="_blank" href="http://service.bitsly.org:8070">gerrit </a>admin admin<br/>
-      <a target="_blank" href="http://service.bitsly.org:8300">vault </a>Token admin<br/>
+      <a target="_blank" href="https://192.168.11.3:443">rancher </a> admin  admin<br/>
+      <a target="_blank" href="http://192.168.11.3:7070">phpldapadmin </a> admin  admin<br/>
+      <a target="_blank" href="http://192.168.11.3:5601">efk</a><br/>
+      <a target="_blank" href="http://192.168.11.3:15672">rabbitmq </a>admin admin<br/>
+      <a target="_blank" href="http://192.168.11.3:8080">jenkins </a><br/>
+      <a target="_blank" href="http://192.168.11.3:8081">nexus </a><br/>
+      <a target="_blank" href="http://192.168.11.3:8848/nacos">nacos </a>nacos nacos<br/>
+      <a target="_blank" href="http://192.168.11.3:3000">grafana </a>admin admin<br/>
+      <a target="_blank" href="http://192.168.11.3:9000">sonarqube </a>admin admin<br/>
+      <a target="_blank" href="http://192.168.11.3:8070">gerrit </a>admin admin<br/>
+      <a target="_blank" href="http://192.168.11.3:8300">vault </a>Token admin<br/>
     </body>
     </html>
 

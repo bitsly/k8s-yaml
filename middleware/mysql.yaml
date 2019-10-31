@@ -28,7 +28,7 @@ data:
     GRANT SELECT ON performance_schema.* TO 'exporter'@'localhost';
     -- bud
     CREATE DATABASE IF NOT EXISTS bud;
-    CREATE IF NOT EXISTS USER 'bud'@'%' IDENTIFIED BY 'bud';
+    CREATE USER IF NOT EXISTS 'bud'@'%' IDENTIFIED BY 'bud';
     GRANT ALL PRIVILEGES ON bud.* TO 'bud'@'%';
     -- flush
     FLUSH PRIVILEGES;
