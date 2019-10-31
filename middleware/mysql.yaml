@@ -29,7 +29,11 @@ data:
     -- bud
     CREATE DATABASE IF NOT EXISTS bud;
     CREATE USER IF NOT EXISTS 'bud'@'%' IDENTIFIED BY 'bud';
-    GRANT ALL PRIVILEGES ON bud.* TO 'bud'@'%';
+    GRANT ALL PRIVILEGES ON bud.* TO 'bud'@'%' WITH GRANT OPTION;
+    -- benchmark
+    CREATE DATABASE IF NOT EXISTS benchmark;
+    CREATE USER IF NOT EXISTS 'benchmark'@'%' IDENTIFIED BY 'benchmark';
+    GRANT ALL PRIVILEGES ON benchmark.* TO 'benchmark'@'%' WITH GRANT OPTION;
     -- flush
     FLUSH PRIVILEGES;
 
