@@ -45,7 +45,7 @@ spec:
         fsGroup: 0
       containers:
       - name: nacos
-        image: nacos/nacos-server:1.0.0
+        image: nacos/nacos-server:1.1.4
         ports:
         - containerPort: 8848
         env:
