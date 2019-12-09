@@ -51,6 +51,7 @@ data:
       <a target="_blank" href="http://192.168.11.3:9000">sonarqube </a>admin admin<br/>
       <a target="_blank" href="http://192.168.11.3:8070">gerrit </a>admin admin<br/>
       <a target="_blank" href="http://192.168.11.3:8300">vault </a>Token admin<br/>
+      <a target="_blank" href="http://192.168.11.3:8060">opengrok </a><br/>
     </body>
     </html>
 

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opengrok
+  namespace: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opengrok
+  template:
+    metadata:
+      labels:
+        app: opengrok
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: opengrok
+        image: opengrok/docker:1.3
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: opengrok-src-volume
+          mountPath: /opengrok/src
+        - name: opengrok-data-volume
+          mountPath: /opengrok/data
+      volumes:
+      - name: opengrok-src-volume
+        hostPath:
+          path: /mnt/data/opengrok/src
+      - name: opengrok-data-volume
+        hostPath:
+          path: /mnt/data/opengrok/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opengrok
+  namespace: middleware
+spec:
+  selector:
+    app: opengrok
+  externalIPs:
+  - 192.168.11.3
+  ports:
+  - name: 8060port
+    port: 8060
+    targetPort: 8080
