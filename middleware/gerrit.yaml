@@ -19,15 +19,55 @@ spec:
         fsGroup: 0
       containers:
       - name: gerrit
-        image: openfrontier/gerrit:2.16.8
+        image: openfrontier/gerrit:latest
         ports:
         - containerPort: 29418
         - containerPort: 8080
         env:
+        - name: WEBURL
+          value: http://192.168.11.3:8070
         - name: AUTH_TYPE
           value: DEVELOPMENT_BECOME_ANY_ACCOUNT
-        - name: WEBURL
-          value: "http://192.168.11.3:8070"
+        - name: GERRIT_INIT_ARGS
+          value: "--install-plugin=plugin-manager --install-plugin=download-commands --install-plugin=gitiles --install-plugin=delete-project"
+        volumeMounts:
+        - name: gerrit-review-volume
+          mountPath: /var/gerrit/review_site
+        #- name: gerrit-db-volume
+        #  mountPath: /var/gerrit/review_site/db
+        #- name: gerrit-git-volume
+        #  mountPath: /var/gerrit/review_site/git
+        #- name: gerrit-index-volume
+        #  mountPath: /var/gerrit/review_site/index
+        #- name: gerrit-cache-volume
+        #  mountPath: /var/gerrit/review_site/cache
+        #- name: gerrit-plugins-volume
+        #  mountPath: /var/gerrit/review_site/plugins
+        #- name: gerrit-logs-volume
+        #  mountPath: /var/gerrit/review_site/logs
+      volumes:
+      - name: gerrit-review-volume
+        hostPath:
+          path: /mnt/data/gerrit/review
+      #- name: gerrit-db-volume
+      #  hostPath:
+      #    path: /mnt/data/gerrit/db
+      #- name: gerrit-git-volume
+      #  hostPath:
+      #    path: /mnt/data/gerrit/git
+      #- name: gerrit-index-volume
+      #  hostPath:
+      #    path: /mnt/data/gerrit/index
+      #- name: gerrit-cache-volume
+      #  hostPath:
+      #    path: /mnt/data/gerrit/cache
+      #- name: gerrit-plugins-volume
+      #  hostPath:
+      #    path: /mnt/data/gerrit/plugins
+      #- name: gerrit-logs-volume
+      #  hostPath:
+      #    path: /mnt/data/gerrit/logs
+        
 ---
 apiVersion: v1
 kind: Service
